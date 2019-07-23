@@ -1,0 +1,54 @@
+#most_days("IRAhandle_tweets_1.csv", 10)
+The day 8/12/2017 had the most tweets of 960
+
+#most_by_hour("IRAhandle_tweets_1.csv", 10)
+Hour 16 had 2129 tweets in total 
+
+#most_words("IRAhandle_tweets_1.csv", 10)
+The most common word was "the" that occured 8213 times
+
+#author_tweet_time("IRAhandle_tweets_1.csv", 10)
+1D Nicole only tweeted later at night pm.
+4EVER_SUSAN only tweeted later at night pm.
+4MYSQUAD only tweeted later at night pm.
+AANTIRASIST only tweeted later at night pm.
+
+1ERIK-LEE only tweeted in am.
+71BILALJAMIL1 only tweeted in am.
+ABIGAILCALLME only tweeted in am.
+
+#account_most_words("IRAhandle_tweets_1.csv")
+The account type right’s most common word was “the”
+The account type Koch’s most common word was “#kochfarms”
+The account type Arabic’s most common word was “httpstco71tx9psdcn”
+
+#politics_and_followers("IRAhandle_tweets_1.csv")
+10_GPO mentioned “Trump, Hillary or Obama” and had 9636 followers. 
+1488Reasons mentioned “Trump, Hillary or Obama” and had 6313 followers. 
+1DNicole mentioned “Trump, Hillary or Obama” and had 40 followers. 
+1ERIK_LEE mentioned “Trump, Hillary or Obama” and had 74 followers.
+
+#account_and_languages("IRAhandle_tweets_1.csv")
+The "Right" account type uses these languages:- English, French, Spanish, German, Catalan, Arabic, Pushto, Slovak, Norwegian, Dutch, Farsi (Persian),
+
+The "Russian" account type uses these languages:- Russian, Serbian, Ukrainian, Arabic, Uzbek, Bulgarian, Macedonian, English, French, Spanish, German, Slovenian, Japanese, Turkish,
+
+The "Koch" account type uses these languages:- English, Tagalog (Filipino), Albanian, Indonesian, LANGUAGE UNDEFINED,
+
+The "Italian" account type uses these languages:- Italian, English, Romanian, Spanish, Catalan, German, Estonian, French, Norwegian, Vietnamese, Dutch,
+
+The "Left" account type uses these languages:- English, Spanish, Tagalog (Filipino), Estonian, Farsi (Persian), Romanian, Arabic, Catalan, Turkish, Norwegian, LANGUAGE UNDEFINED, Vietnamese, Czech, Somali, Lithuanian, Italian, Croatian, Slovak, Icelandic, Uzbek, Japanese, French, Finnish, Portuguese, Dutch, Latvian, Albanian, German, Danish, Swedish, Pushto, Malay, Indonesian,
+
+The "?" account type uses these languages:- English, Vietnamese, Croatian,
+
+
+#The_most_famous_author_by_followers("IRAhandle_tweets_1.csv", 10)
+(1) The most famous author "4EVER1937" has "11415" followers 
+(2) The most famous author "1488REASONS" has "6586" followers 
+(3) The most famous author "10_GOP" has "2302" followers 
+(4) The most famous author "ACAB_ZONE" has "1696" followers 
+(5) The most famous author "AANTIRACIST" has "1053" followers 
+(6) The most famous author "ADAMCHAPMANJR" has "957" followers 
+(7) The most famous author "ACEJINEV" has "891" followers 
+(8) The most famous author "5EMEN5EMENICH" has "724" followers 
+(9) The most famous author "AAAVADAKEDAVRAA" has "625" followers
