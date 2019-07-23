@@ -1,0 +1,590 @@
+# Processing Russian Troll data from fivethirtyeight.com
+require 'csv'
+
+# There are non-UTF8 characters. This seems to make it so that we can read
+# all of the files. I have no idea what this does with characters it can't read.
+Encoding.default_external = Encoding::UTF_8
+Encoding.default_internal = Encoding::UTF_8
+
+def count_troll_types(filename)
+ # read the text of the whole file
+ csv_text = File.read(filename)
+ # now parse the file, assuming it has a header row at the top
+ csv = CSV.parse(csv_text, :headers => true)
+ # These are the header categories
+ # You can get more information about each category if you scroll
+ # down to the README.md here:
+ # https://github.com/fivethirtyeight/russian-troll-tweets
+ '''
+ external_author_id
+ author
+ content
+ region
+ language
+ publish_date
+ harvested_date
+ following
+ followers
+ updates
+ post_type
+ account_type
+ new_june_2018
+ retweet
+ account_category
+ '''
+
+ # map from categories to the number of tweets in category
+ categories = Hash.new
+ # go through each row of the csv file
+ csv.each do |row|
+   # convert the row to a hash
+   # the keys of the hash will be the headers from the csv file
+   hash = row.to_hash
+   # this is a trick to make sure that this key exists in a hash
+   # so that the next line which adds 1 will never fail
+   if !categories.include? hash['region']
+     categories[hash['region']] = 0
+   end
+   # This cannot fail because if the key hadn't existed,
+   # then the previous if will have created it
+   categories[hash['region']] += 1
+ end
+
+# now print the key/value pairs
+ categories.each do |key, value|
+    puts "#{key} occurs #{value} times"
+ end 
+end
+
+
+# This checks if the current file is the main file that was run
+# so this is sort of like "public static void main" in Java/C#
+if __FILE__ == $0
+ count_troll_types("IRAhandle_tweets_1.csv")
+end
+
+'''
+BASIC QUESTIONS FROM HERE
+'''
+
+def most_days(filename, n) # Please pass in the file name and how many days you want to see that received the most tweets
+ puts "Prints the most days that tweets were posted"
+ puts
+# read the text of the whole file
+ csv_text = File.read(filename)
+ # now parse the file, assuming it has a header row at the top
+ csv = CSV.parse(csv_text, :headers => true)
+
+ # map from categories to the number of tweets in dates
+ dates = Hash.new
+ # go through each row of the csv file
+ csv.each do |row|
+   # convert the row to a hash
+   # the keys of the hash will be the headers from the csv file
+   hash = row.to_hash
+
+   #splits the full publish date and removes the time
+   date_str = hash['publish_date'].to_s.split(" ")
+   date_hash = date_str[0]
+
+   # this is a trick to make sure that this key exists in a hash
+   # so that the next line which adds 1 will never fail
+   if !dates.include? date_hash
+     dates[date_hash] = 0
+   end
+   # This cannot fail because if the key hadnt existed,
+   # then the previous if will have created it
+   dates[date_hash] += 1
+ end
+
+ # now print the key/value pairs n times that the user wants
+ i=0
+ dates = dates.sort_by {|k,v| v}.reverse
+ dates.each do |key,value|
+   if i < n
+     puts "Date #{key} had #{value} tweets"
+   else
+     break
+   end
+     i=i+1
+ end   
+end
+
+def most_by_hour(filename, n) #Please pass file name and how many hour results you want to see that received the most tweets
+ puts "Prints the most hours that tweets were posted"
+ puts
+# read the text of the whole file
+ csv_text = File.read(filename)
+ # now parse the file, assuming it has a header row at the top
+ csv = CSV.parse(csv_text, :headers => true)
+
+ # map from categories to the number of tweets in hours
+ hours = Hash.new
+ # go through each row of the csv file
+ csv.each do |row|
+   # convert the row to a hash
+   # the keys of the hash will be the headers from the csv file
+   hash = row.to_hash
+
+     #This part splits the full publish date and only takes the time part
+     hours_str = hash['publish_date'].to_s.split(" ")
+     hours_hash = (hours_str[1].to_s.split(":"))[0]
+
+     # this is a trick to make sure that this key exists in a hash
+     # so that the next line which adds 1 will never fail
+     if !hours.include? hours_hash
+       hours[hours_hash] = 0
+     end
+     # This cannot fail because if the key hadnt existed,
+     # then the previous if will have created it
+     hours[hours_hash] += 1
+   end
+
+   i=0
+    # now print the key/value pairs of n number of results you need
+   hours = hours.sort_by {|k,v| v}.reverse
+   hours.each do |key,value|
+     if i < n
+       puts "Hour #{key} had #{value} tweets"
+     else
+       break
+   end
+       i=i+1
+ end   
+end
+
+def most_words(filename,n)#Please pass file name and how many results of most used words
+ puts "Prints the frequency and the most used words"
+ puts
+# read the text of the whole file
+ csv_text = File.read(filename)
+ # now parse the file, assuming it has a header row at the top
+ csv = CSV.parse(csv_text, :headers => true)
+
+ # map from categories to the number of tweets in words
+ words = Hash.new
+  # go through each row of the csv file
+ csv.each do |row|
+   # convert the row to a hash
+   # the keys of the hash will be the headers from the csv file
+   hash = row.to_hash
+
+   # downcases the content and removes [,.?!/\:]
+   words_str = hash['content'].downcase.tr("[,.?!/\:]",'').split(' ')
+
+   # this is a trick to make sure that this key exists in a hash
+   # so that the next line which adds 1 will never fail
+   words_str.each do |item|
+       if !words.include? item
+         words[item] = 0
+       end
+   # This cannot fail because if the key hadnt existed,
+   # then the previous if will have created it
+       words[item] += 1
+   end
+ end
+  
+ i=0
+ # reverses the hash to get the most occurred on the top
+ words = words.sort_by {|k,v| v}.reverse
+ # now print the key/value pairs n times the use wants
+ words.each do |key,value|
+   if i < n
+       puts "The word \"#{key}\" occurs #{value} times"
+   else
+     break
+   end
+     i=i+1
+   end
+end
+
+'''
+ADVANCED QUESTIONS FROM HERE
+'''
+
+def author_tweet_time(filename, n)#Please pass file name and how many times an author tweeted in different times
+ puts "Prints the author tweet times"
+ puts
+# read the text of the whole file
+ csv_text = File.read(filename)
+ # now parse the file, assuming it has a header row at the top
+ csv = CSV.parse(csv_text, :headers => true)
+  # map from categories to the number of tweets in final
+  final = Hash.new
+ # go through each row of the csv file
+  csv.each do |row|
+   # convert the row to a hash
+   # the keys of the hash will be the headers from the csv file
+   hash = row.to_hash
+
+   # strings that hold the values of author and publish date from the hash
+   author_str = hash['author']
+   hours_str = hash['publish_date'].to_s.split(" ")
+
+   # this is a trick to make sure that this key exists in a hash
+   # so that the next line which adds values will never fail
+   hours_hash = hours_str[1]
+       if !final.include? author_str
+         final[author_str] = ""
+       end
+   # This cannot fail because if the key hadnt existed,
+   # then the previous if will have created it
+   # adds previous value and new times that the author had tweeted
+       final[author_str] = "#{final[author_str]} #{hours_hash}"
+ end
+
+   # finds the frequency of the most times the author tweeted
+     final.each do |key,value|
+       final[key]=  value.split(" ").group_by {|w| w}    #groups by value and all occurances
+         .map {|k,v| [k,v.size]}                         #groups by value and frequency
+         .sort_by(&:last)                                #sorts by lowest to highest
+         .reverse                                        #reverses the order
+         .to_h
+    end
+
+ # now print the key/value pairs 10 times
+  final.each do |key,value|
+  i=0
+   puts "The author \"#{key}\"\'s 10 tweet times are"
+   value.each do |item,value|
+   i=i+1
+     if i<11
+       item1 = item.to_s.split(":")[0].to_i
+        if item1 < 12
+         puts "(#{i}) #{item} am"
+       else
+         puts "(#{i}) #{item} pm"   
+       end  
+     end
+   end
+ end
+end
+
+def account_most_words(filename)#Please pass file 
+ puts "Prints the most used words by each account"
+ puts
+ # read the text of the whole file
+ csv_text = File.read(filename)
+ # now parse the file, assuming it has a header row at the top
+ csv = CSV.parse(csv_text, :headers => true)
+  # map from categories to the number of tweets in final
+  final = Hash.new
+  # convert the row to a hash
+ # the keys of the hash will be the headers from the csv file
+  csv.each do |row|
+   hash = row.to_hash
+
+   # strings that store account type and words of the content
+   account_str = hash['account_type']
+   words_str = hash['content'].downcase.tr("[,.?!/\:]",'')
+   # this is a trick to make sure that this key exists in a hash
+   # so that the next line which adds value will never fail
+       if !final.include? account_str
+         final[account_str] = ""
+       end
+   # This cannot fail because if the key hadnt existed,
+   # then the previous if will have created it
+       final[account_str] = "#{final[account_str]} #{words_str}"
+ end
+
+    # finds the frequency of the most words the account tweeted
+     final.each do |key,value|
+       final[key]=  value.split(" ").group_by {|w| w}    #groups by value and all occurances
+         .map {|k,v| [k,v.size]}                         #groups by value and frequency
+         .sort_by(&:last)                                #sorts by lowest to highest
+         .reverse                                        #reverses the order
+         .to_h
+    end
+
+ # now print the key/value pairs 10 times
+  final.each do |key,value|
+   i=0
+     puts "The account type \"#{key}\"\'s 10 common words are"
+   value.each do |item,value|
+   i=i+1
+     if i<11
+       puts "(#{i}) #{item}"        
+     end
+   end
+ end
+end
+
+def author_most_words(filename)#Please pass file name
+ puts "Prints the most used words by each author"
+ puts
+ # read the text of the whole file
+ csv_text = File.read(filename)
+ # now parse the file, assuming it has a header row at the top
+ csv = CSV.parse(csv_text, :headers => true)
+# map from categories to the number of tweets in final
+  final = Hash.new
+   # convert the row to a hash
+   # the keys of the hash will be the headers from the csv file
+  csv.each do |row|
+   hash = row.to_hash
+
+   #strings that have the value of the author and content
+   author_str = hash['author']
+   words_str = hash['content'].downcase.tr("[,.?!/\:]",'')
+
+   # this is a trick to make sure that this key exists in a hash
+   # so that the next line which adds value will never fail
+       if !final.include? author_str
+         final[author_str] = ""
+       end
+   # This cannot fail because if the key hadnt existed,
+   # then the previous if will have created it
+       final[author_str] = "#{final[author_str]} #{words_str}"
+ end
+
+    # finds the frequency of the most times the author tweeted
+     final.each do |key,value|
+       final[key]=  value.split(" ").group_by {|w| w}    #groups by value and all occurances
+         .map {|k,v| [k,v.size]}                         #groups by value and frequency
+         .sort_by(&:last)                                #sorts by lowest to highest
+         .reverse                                        #reverses the order
+         .to_h
+    end
+
+# now print the key/value pairs
+ final.each do |key,value|
+  i=0
+   puts "The author \"#{key}\"\'s 10 common words are"
+   value.each do |item,value|
+       i=i+1
+     if i<11
+         puts "(#{i}) #{item}"        
+     end
+   end
+ end
+end
+
+def politics_and_followers(filename)#Please pass file name
+ puts "Prints the political mentions and how many follwers the account had"
+ puts
+# read the text of the whole file
+ csv_text = File.read(filename)
+ # now parse the file, assuming it has a header row at the top
+ csv = CSV.parse(csv_text, :headers => true)
+   # map from categories to the number of tweets in category
+  final = Hash.new  
+  # go through each row of the csv file
+  csv.each do |row|
+  # convert the row to a hash
+  # the keys of the hash will be the headers from the csv file
+   hash = row.to_hash
+
+   #strings that contain the author followes and the content
+   author_str = hash['author']
+   followers_str = hash['followers']
+   words_str = hash['content'].downcase.tr("[,.?!/\:]",'')
+   # this is a trick to make sure that this key exists in a hash
+   # so that the next line which adds value will never fail
+       if !final.include? author_str
+         final[author_str] = ""
+       end
+   # This cannot fail because if the key hadnt existed,
+   # then the previous if will have created it
+       final[author_str] = "#{final[author_str]} #{words_str}    #{followers_str}    "
+ end
+  
+   #checks if the political terms were mentined
+     final.each do |key,value|
+      if value=~ /'trump'||'clinton'||'obama'/
+         final[key]=value.split("    ")[1]         
+       else
+         final[key]=  0
+       end
+    end
+
+ # now print the key/value pairs
+  final.each do |key,value|
+   if value.to_i > 0
+     puts "The author \"#{key}\" mentioned \"Trump, Clinton or Obama\" who had \"#{value}\" followers and might have influenced the election"
+     puts
+   end
+ end
+end
+
+def account_and_languages(filename)#Please pass file name
+ puts "Prints the account type and the language the account type uses"
+ puts
+# read the text of the whole file
+ csv_text = File.read(filename)
+ # now parse the file, assuming it has a header row at the top
+ csv = CSV.parse(csv_text, :headers => true)
+ # map from categories to the number of tweets in category
+  final = Hash.new
+ # go through each row of the csv file
+  csv.each do |row|
+   # convert the row to a hash
+   # the keys of the hash will be the headers from the csv file
+   hash = row.to_hash
+
+   #string that contains the account type and language
+   account_str = hash['account_type']
+   languages_str = hash['language']
+   # this is a trick to make sure that this key exists in a hash
+   # so that the next line which adds 1 will never fail
+      if !final.include? account_str
+         final[account_str] = ""
+       end
+   # This cannot fail because if the key hadnt existed,
+   # then the previous if will have created it
+   if final[account_str].include? languages_str    #does not allow multiple value
+       nil
+   else
+       final[account_str] = "#{final[account_str]} #{languages_str},"
+   end
+ end
+  
+ # now print the key/value pairs
+  final.each do |key,value|
+   puts "The \"#{key}\"\ account type uses these languages:-#{value}"
+   puts    
+   end
+end
+
+def language_tweets(filename, lang) #Please pass file name and the specific language tweets you want to print
+ puts "Prints all the language tweets that the user wants"
+ puts
+# read the text of the whole file
+ csv_text = File.read(filename)
+ # now parse the file, assuming it has a header row at the top
+ csv = CSV.parse(csv_text, :headers => true)
+ # map from categories to the number of tweets in final
+  final = Hash.new
+  # go through each row of the csv file
+  csv.each do |row|
+   # convert the row to a hash
+   # the keys of the hash will be the headers from the csv file
+   hash = row.to_hash
+
+   #string that contains the language and the content
+   languages_str = hash['language'].downcase
+   content_str = hash['content']
+
+   # this is a trick to make sure that this key exists in a hash
+   # so that the next line which adds value will never fail
+      if !final.include? languages_str
+         final[languages_str] = ""
+       end
+   # This cannot fail because if the key hadnt existed,
+   # then the previous if will have created it
+         final[languages_str] = "#{final[languages_str]} #{content_str} \n\n"
+ end
+  
+   # now print the key/value pairs
+  final.each do |key,value|
+   if key == lang     #only lets the specific language
+     puts "The language that you chose \"#{key}\"\ has the following tweets:-"
+     puts
+     puts "#{value}"
+     puts
+   else
+     nil
+   end
+ end
+end
+
+def Which_author_mentioned_your_word(filename, word)#Please pass file name and the word your author mentioned
+ puts "Prints which author mentioned the user's words"
+ puts
+# read the text of the whole file
+ csv_text = File.read(filename)
+ # now parse the file, assuming it has a header row at the top
+ csv = CSV.parse(csv_text, :headers => true)
+ # map from categories to the number of tweets in final
+  final = Hash.new
+   # go through each row of the csv file
+   csv.each do |row|  
+   # convert the row to a hash
+   # the keys of the hash will be the headers from the csv file
+   hash = row.to_hash
+
+   #string that contains the info of author and content
+   author_str = hash['author']
+   content_str = hash['content']
+    # this is a trick to make sure that this key exists in a hash
+     # so that the next line which adds value will never fail
+      if !final.include? author_str
+         final[author_str] = ""
+       end
+   # This cannot fail because if the key hadnt existed,
+   # then the previous if will have created it
+       final[author_str] = "#{final[author_str]} #{content_str}"
+ end
+  
+   # finds the frequency of the most times the author tweeted
+     final.each do |key,value|
+       final[key]=  value.split(" ").group_by {|w| w}    #groups by value and all occurances
+         .map {|k,v| [k,v.size]}                         #groups by value and frequency
+         .sort_by(&:last)                                #sorts by lowest to highest
+         .reverse                                        #reverses the order
+         .to_h
+    end
+
+ # now print the key/value pairs
+ final.each do |key,value|
+  if value.to_s.downcase.include? word.downcase
+    puts "The author \"#{key}\"\ mentioned your word \"#{word}\" "
+  else
+    nil
+  end
+end
+end
+
+def The_most_famous_author_by_followers(filename, n)#Please pass file name and the word your author mentioned
+ puts "Prints which author has the most followers"
+ puts
+# read the text of the whole file
+ csv_text = File.read(filename)
+ # now parse the file, assuming it has a header row at the top
+ csv = CSV.parse(csv_text, :headers => true)
+ # map from categories to the number of tweets in final
+  final = Hash.new
+   # go through each row of the csv file
+   csv.each do |row|  
+   # convert the row to a hash
+   # the keys of the hash will be the headers from the csv file
+   hash = row.to_hash
+
+   #string that contains the info of author and content
+   author_str = hash['author']
+   followers_str = hash['followers']
+    # this is a trick to make sure that this key exists in a hash
+     # so that the next line which adds value will never fail
+      if !final.include? author_str
+         final[author_str] = ""
+       end
+   # This cannot fail because if the key hadnt existed,
+   # then the previous if will have created it
+       final[author_str] = followers_str.to_i
+ end
+ final = final.sort_by {|k,v| v}.reverse     #sorts the maximun followers
+ i=1
+ # now print the key/value pairs
+ final.each do |key,value|
+ while i < n
+    puts "(#{i}) The famous author \"#{key}\"\ has \"#{value}\" followers "
+    break
+ end
+ i=i+1
+end
+end
+
+
+#count_troll_types("IRAhandle_tweets_1.csv")
+             # Basic Questions
+#most_days("IRAhandle_tweets_1.csv", 10)
+#most_by_hour("IRAhandle_tweets_1.csv", 10)
+#most_words("IRAhandle_tweets_1.csv", 10)
+             # Advanced Questions
+#author_tweet_time("IRAhandle_tweets_1.csv", 10)
+#account_most_words("IRAhandle_tweets_1.csv")
+#author_most_words("IRAhandle_tweets_1.csv")
+#politics_and_followers("IRAhandle_tweets_1.csv")
+#account_and_languages("IRAhandle_tweets_1.csv")
+#language_tweets("IRAhandle_tweets_1.csv", "italian")
+#Which_author_mentioned_your_word("IRAhandle_tweets_1.csv", "Trump")
+#The_most_famous_author_by_followers("IRAhandle_tweets_1.csv", 10)
