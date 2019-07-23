@@ -1,2 +1,3 @@
 # Analyze-Russian-Troll-Tweets
-CS 208 
+Processing Russian Troll data from fivethirtyeight.com
+CS 208 Ruby big porogramming assignment 
