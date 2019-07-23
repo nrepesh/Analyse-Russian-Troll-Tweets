@@ -1,2 +1,2 @@
-# Analyse-Russian-Troll-Tweets
+# Analyze-Russian-Troll-Tweets
 CS 208 
